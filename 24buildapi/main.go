@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"math/rand/v2"
 	"net/http"
 	"strconv"
@@ -13,7 +14,7 @@ import (
 type Course struct {
 	CourseId    string  `json:"courseId"`
 	CourseName  string  `json:"courseName"`
-	CoursePrice string  `json:"price"`
+	CoursePrice int     `json:"price"`
 	Author      *Author `json:"author"`
 }
 
@@ -32,7 +33,23 @@ func (c *Course) IsEmpty() bool {
 }
 
 func main() {
+	fmt.Println("My API")
+	router := mux.NewRouter()
 
+	//	seeding
+	courses = append(courses, Course{CourseId: "2", CourseName: "React.JS", CoursePrice: 299, Author: &Author{FullName: "Madhav Arora", Website: "madhavarora03.netlify.app"}})
+	courses = append(courses, Course{CourseId: "4", CourseName: "MERN Stack", CoursePrice: 199, Author: &Author{FullName: "Madhav Arora", Website: "go.dev"}})
+
+	//	routing
+	router.HandleFunc("/", serveHome).Methods("GET")
+	router.HandleFunc("/course", getAllCourses).Methods("GET")
+	router.HandleFunc("/course/{id}", getOneCourse).Methods("GET")
+	router.HandleFunc("/course", createCourse).Methods("POST")
+	router.HandleFunc("/course/{id}", updateCourse).Methods("PUT")
+	router.HandleFunc("/course/{id}", deleteCourse).Methods("DELETE")
+
+	//	listen to port
+	log.Fatal(http.ListenAndServe(":4000", router))
 }
 
 // controllers
@@ -85,6 +102,14 @@ func createCourse(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode("No data inside JSON")
 	}
 
+	// Check if course title is duplicate
+	for _, myCourse := range courses {
+		if myCourse.CourseName == course.CourseName {
+			json.NewEncoder(w).Encode("Duplicated course name!")
+			return
+		}
+	}
+
 	//	generate unique id, string
 	//	append course into courses
 	course.CourseId = strconv.Itoa(rand.IntN(100))
@@ -132,7 +157,7 @@ func deleteCourse(w http.ResponseWriter, r *http.Request) {
 		if course.CourseId == params["id"] {
 			courses = append(courses[:index], courses[index+1:]...)
 			json.NewEncoder(w).Encode("Course deleted successfully!")
-			break
+			return
 		}
 	}
 	json.NewEncoder(w).Encode("No Course found with given id!")
