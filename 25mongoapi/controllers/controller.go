@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"context"
 	"fmt"
+	model "github.com/madhavarora03/mongoapi/models"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"log"
@@ -29,4 +31,17 @@ func init() {
 
 	collection = client.Database(dbName).Collection(collectionName)
 	fmt.Println("Collection instance is ready!")
+}
+
+// MONGODB helpers
+
+// insert 1 record
+func insertOneMovie(movie model.Netflix) {
+	inserted, err := collection.InsertOne(context.Background(), movie)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Inserted one movie with id:", inserted.InsertedID)
 }
