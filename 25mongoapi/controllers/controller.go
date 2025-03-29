@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	model "github.com/madhavarora03/mongoapi/models"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"log"
@@ -44,4 +45,18 @@ func insertOneMovie(movie model.Netflix) {
 	}
 
 	fmt.Println("Inserted one movie with id:", inserted.InsertedID)
+}
+
+func updateOneMovie(movieId string) {
+	id, _ := bson.ObjectIDFromHex(movieId)
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": bson.M{"watched": true}}
+
+	result, err := collection.UpdateOne(context.Background(), filter, update)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Modified count:", result.ModifiedCount)
 }
