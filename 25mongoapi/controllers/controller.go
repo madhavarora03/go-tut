@@ -2,12 +2,14 @@ package controller
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	model "github.com/madhavarora03/mongoapi/models"
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"log"
+	"net/http"
 )
 
 const connectionString = "mongodb://localhost:27017"
@@ -109,4 +111,13 @@ func getAllMovies() []bson.M {
 
 	defer cursor.Close(context.Background())
 	return movies
+}
+
+// Actual controllers
+
+func GetAllMovies(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/x-www-form-urlencoded")
+	allMovies := getAllMovies()
+
+	json.NewEncoder(w).Encode(allMovies)
 }
