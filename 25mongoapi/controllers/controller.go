@@ -47,6 +47,7 @@ func insertOneMovie(movie model.Netflix) {
 	fmt.Println("Inserted one movie with id:", inserted.InsertedID)
 }
 
+// update 1 record
 func updateOneMovie(movieId string) {
 	id, _ := bson.ObjectIDFromHex(movieId)
 	filter := bson.M{"_id": id}
@@ -59,4 +60,28 @@ func updateOneMovie(movieId string) {
 	}
 
 	fmt.Println("Modified count:", result.ModifiedCount)
+}
+
+// delete 1 record
+func deleteOneMovie(movieId string) {
+	id, _ := bson.ObjectIDFromHex(movieId)
+	filter := bson.M{"_id": id}
+	deleteCount, err := collection.DeleteOne(context.Background(), filter)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Movie got deleted with delete count:", deleteCount)
+}
+
+// delete all records from mongodb
+func deleteAllMovies() {
+	deleteResult, err := collection.DeleteMany(context.Background(), bson.D{{}}, nil)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Number of movies deleted:", deleteResult.DeletedCount)
 }
